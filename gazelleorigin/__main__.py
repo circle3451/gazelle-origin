@@ -116,7 +116,13 @@ class GazelleOrigin:
             sys.exit(EXIT_CODES['tracker'])
 
         # Search for the tracker with an alias matching the input
-        tracker = next((x for x in TRACKERS if args.ORIGIN_TRACKER.lower() in x.aliases), None)
+        tracker = next(
+            (
+                x for x in TRACKERS
+                if any(alias in args.ORIGIN_TRACKER.lower() for alias in x.aliases)
+            ),
+            None
+        )
         if not tracker:
             print('Invalid tracker: {0}'.format(args.ORIGIN_TRACKER), file=sys.stderr)
             sys.exit(EXIT_CODES['tracker'])
