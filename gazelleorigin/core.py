@@ -134,7 +134,7 @@ class GazelleAPI:
             'Log':                     '{0}%'.format(torrent['logScore']) if torrent['hasLog'] else '',
             'Format':                  torrent['format'],
             'Encoding':                torrent['encoding'],
-            'Directory':               torrent['filePath'],
+            'Directory':               html.unescape(torrent['filePath']),
             'Size':                    torrent['size'],
             'File count':              torrent['fileCount'],
             'Info hash':               torrent.get("infoHash", hash or "Unknown"), # OPS fallback
@@ -161,9 +161,14 @@ class GazelleAPI:
 
         result += yaml.dump({'Files': file_list}, width=float('inf'), allow_unicode=True)
 
-        groupDescription = html.unescape(group.get('bbBody') or group.get('wikiBBcode')).strip('\r\n')
+        description_raw = group.get('bbBody') or group.get('wikiBBcode') or ''
+        groupDescription = html.unescape(description_raw).strip('\r\n')
+
         if groupDescription:
-            groupDescription = textwrap.indent(groupDescription, '  ', lambda line: True)
-            result += '\n\nDescription: |-\n{0}\n\n'.format(groupDescription)
+            # Normalize all lines to have 2 spaces
+            lines = groupDescription.splitlines()
+            normalized = '\n'.join('  ' + line.lstrip() for line in lines)
+
+            result += '\n\nDescription: |-\n{0}\n\n'.format(normalized)
 
         return result
